@@ -199,22 +199,26 @@ Collaborative Filtering (CF) adalah teknik sistem rekomendasi yang memanfaatkan 
 
 ### Model: Neural Collaborative Filtering
 
-Model dikembangkan dengan pendekatan dot product embedding antara user dan book, yang kemudian dijumlahkan dengan bias dan diproses melalui fungsi aktivasi sigmoid. Arsitektur utama:
+Model dibangun menggunakan pendekatan matrix factorization berbasis neural network, di mana representasi (embedding) dari pengguna dan buku dipelajari untuk memodelkan interaksi di antara keduanya. Model memanfaatkan dot product dari vektor embedding sebagai perkiraan tingkat preferensi pengguna terhadap buku tertentu.
 
-1. **Embedding Layer** untuk user dan book.
-2. **Dropout** digunakan untuk mencegah overfitting.
-3. **Dot Product** antar embedding untuk memodelkan interaksi.
-4. **Bias Layer** untuk menangkap kecenderungan masing-masing entitas.
+1. **Embedding Layer** untuk user dan book, masing-masing embedding_size = 50, dengan:
+  - Inisialisasi bobot menggunakan he_normal.
+  - Regularisasi L2 (l2(1e-5)) untuk mencegah overfitting.
+2. **Dropout** dengan dropout rate 0.2 diterapkan setelah embedding user dan book untuk meningkatkan generalisasi model.
+3. **Dot Product**  antar embedding user dan book sebagai bentuk perkiraan preferensi.
+4. **Bias Bias Embedding Layer** untuk user dan book yang ditambahkan pada hasil dot product untuk menangkap bias individual masing-masing entitas.
 5. **Sigmoid Activation** membatasi output skor ke rentang [0, 1].
 
 Model dikompilasi menggunakan:
 ```python
-embedding_size = 50
 loss = MeanSquaredError()
 metric = RootMeanSquaredError()
 optimizer = Adam(learning_rate=0.001)
 ```
-Model dilatih maksimal selama 50 epoch dengan early stopping yang menghentikan pelatihan pada epoch ke-28, menggunakan batch size 64, dan validasi dilakukan dengan data sebesar 20%.
+- Model dilatih maksimal selama 50 epoch.
+- Early stopping menghentikan pelatihan secara otomatis pada epoch ke-28.
+- Menggunakan batch size 64.
+- Validasi dilakukan pada 20% data dari total dataset pelatihan.
 
 ### Top-N Recommendation Output
 Setelah pelatihan model, sistem menghasilkan 10 rekomendasi buku teratas yang dipersonalisasi untuk pengguna tertentu. 
