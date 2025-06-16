@@ -81,7 +81,7 @@ Beberapa tahapan eksplorasi data dilakukan untuk memahami karakteristik dataset:
 ---
 ## Data Preparation
 
-Pada tahap ini, dilakukan beberapa langkah penting untuk menyiapkan data agar dapat digunakan dalam model *collaborative filtering*. Model tersebut membutuhkan representasi data dalam bentuk numerik (integer) dan normalisasi target, agar proses pelatihan model berjalan efisien dan akurat. Berikut tahapan yang dilakukan secara berurutan:
+Tahap ini bertujuan untuk menyiapkan data agar dapat digunakan dalam model collaborative filtering, terutama Neural Collaborative Filtering yang memerlukan input dalam bentuk integer dan target yang dinormalisasi. Berikut langkah-langkah yang dilakukan:
 
 ### Penanganan Missing Value
 
