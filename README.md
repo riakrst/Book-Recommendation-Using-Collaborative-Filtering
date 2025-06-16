@@ -78,9 +78,12 @@ Beberapa tahapan eksplorasi data dilakukan untuk memahami karakteristik dataset:
 - **10 Buku paling banyak dirating**
   ![image](https://github.com/user-attachments/assets/5b526c2c-59f0-43b0-8ea8-3d0ba6ee195c)
 
-### Data Preprocessing
+---
+## Data Preparation
 
-**Missing Value**
+Pada tahap ini, dilakukan beberapa langkah penting untuk menyiapkan data agar dapat digunakan dalam model *collaborative filtering*. Model tersebut membutuhkan representasi data dalam bentuk numerik (integer) dan normalisasi target, agar proses pelatihan model berjalan efisien dan akurat. Berikut tahapan yang dilakukan secara berurutan:
+
+### Penanganan Missing Value
 
 Proses awal yang dilakukan adalah mengecek nilai kosong (missing value) pada masing-masing dataset.
 
@@ -96,10 +99,10 @@ Hasil pemeriksaan:
 
 Penanganan yang dilakukan:
 
-1. Nilai kosong pada `Book-Author`, `Publisher`, dan `Image-URL-L` diisi dengan teks placeholder `"Unknown"` karena jumlahnya sangat kecil dan tidak signifikan memengaruhi data.
-2. Kolom `Age` diabaikan dalam proses pemodelan karena pendekatan yang digunakan adalah **collaborative filtering**, yang tidak memerlukan informasi demografis pengguna secara langsung.
+1. Nilai kosong pada kolom Book-Author, Publisher, dan Image-URL-L diisi dengan teks placeholder "Unknown" menggunakan fungsi fillna(), karena jumlah missing value sangat sedikit sehingga tidak berdampak signifikan terhadap kualitas data.
+2. Kolom `Age` diabaikan dalam proses pemodelan karena pendekatan yang digunakan adalah collaborative filtering, yang tidak memerlukan informasi demografis pengguna secara langsung.
 
-**Filter Rating = 0**
+### Filter Rating = 0
 
 Menurut dokumentasi dataset di Kaggle, rating dengan nilai 0 merepresentasikan interaksi implisit, yaitu ketika pengguna melihat atau memiliki buku tetapi tidak memberikan penilaian eksplisit terhadap buku tersebut.
 Artinya, rating 0 tidak berarti buku tersebut tidak disukai atau diberi penilaian buruk, melainkan tidak ada rating eksplisit dari pengguna.
@@ -113,7 +116,7 @@ Langkah yang diambil:
 - Menghapus semua entri dengan nilai Book-Rating = 0.
 - Jumlah data setelah filter rating 0: 433.671 entri rating eksplisit
 
-**Filter Data untuk Mengurangi Sparsity**
+### Filter Data untuk Mengurangi Sparsity
 
 Setelah menghapus rating 0, dilakukan filtering lebih lanjut untuk mengurangi sparsity dalam matriks interaksi. Banyak pengguna dan buku hanya memiliki sedikit rating, sehingga model kesulitan belajar dari data yang terlalu jarang.
 Kriteria filtering:
@@ -126,12 +129,6 @@ Meskipun cukup banyak data yang dihapus dari total awal, filtering ini penting u
 - Mengurangi jumlah data yang jarang terisi dengan menghapus pengguna dan buku yang hanya punya sedikit rating.
 - Memastikan bahwa model dilatih pada data dari pengguna dan buku yang memiliki cukup riwayat interaksi eksplisit.
 - Data yang tersisa sebanyak 74.907 entri, meskipun jauh lebih sedikit dari awal, tetap mencukupi untuk membangun model *collaborative filtering* yang efektif dan representatif pada populasi pengguna dan buku yang lebih aktif dan populer.
-
----
-
-## Data Preparation
-
-Pada tahap ini, dilakukan beberapa langkah penting untuk menyiapkan data agar dapat digunakan dalam model *collaborative filtering*. Model tersebut membutuhkan representasi data dalam bentuk numerik (integer) dan normalisasi target, agar proses pelatihan model berjalan efisien dan akurat. Berikut tahapan yang dilakukan secara berurutan:
 
 ### Encoding User dan ISBN
 
@@ -232,7 +229,7 @@ Skor prediksi dikembalikan ke skala 1–10 menggunakan transformasi linier dari 
 ---
 
 ## Evaluation
-RMSE (Root Mean Squared Error) digunakan sebagai metrik evaluasi utama karena model melakukan prediksi pada nilai rating dalam skala numerik kontinu (setelah dinormalisasi ke [0, 1]). RMSE cocok untuk mengukur seberapa dekat prediksi model terhadap nilai aktual pada masalah regresi seperti sistem rekomendasi berbasis rating.
+Model dievaluasi menggunakan metrik Root Mean Squared Error (RMSE) karena model memprediksi nilai rating buku dalam skala numerik kontinu (setelah dinormalisasi ke rentang [0, 1]). RMSE mengukur seberapa dekat prediksi model terhadap nilai aktual—semakin kecil nilai RMSE, semakin baik akurasi prediksi model.
 
 Formula RMSE:
 ![image](https://github.com/user-attachments/assets/94d1ebdf-49fe-4647-bd42-abd0cc8998dc)
@@ -241,15 +238,13 @@ Formula RMSE:
 - 𝑦𝑖 : rating asli (target)
 - ^𝑦𝑖 : rating hasil prediksi
 
-Semakin kecil nilai RMSE, semakin akurat model
-
 **Bagaimana RMSE Bekerja:**
 - Mula-mula, RMSE menghitung selisih antara nilai prediksi dan nilai aktual
 - Selisih tersebut dikuadratkan agar semua error menjadi positif dan kesalahan besar memiliki dampak lebih besar
 - Nilai kuadrat error dijumlahkan dan dirata-ratakan
 - Terakhir, diambil akar kuadrat dari nilai rata-rata kuadrat tersebut agar hasilnya kembali ke skala asli dan dapat diinterpretasikan dengan lebih mudah
 
-RMSE bersifat sensitif terhadap outlier, sehingga cocok untuk konteks seperti ini di mana kita ingin menghindari prediksi dengan kesalahan besar.
+Catatan: RMSE tidak bersifat scale-invariant, sehingga lebih tepat digunakan pada data yang telah dinormalisasi.
 
 **Hasil Training & Validasi**
 
@@ -260,13 +255,26 @@ Grafik di atas menunjukkan perkembangan Root Mean Squared Error (RMSE) selama pr
 - RMSE Validasi juga menurun di awal hingga mencapai titik stabil sekitar epoch ke-10, dan bertahan di kisaran ±0.18 hingga akhir training.
 - Tidak terdapat indikasi overfitting yang signifikan karena gap antara training dan validasi kecil dan stabil.
 
----
 
-## Kesimpulan
+### Kesimpulan
 
-Model sistem rekomendasi yang dikembangkan berhasil menjawab dua problem utama: memprediksi preferensi pengguna dan memberikan rekomendasi buku yang relevan. Dengan pendekatan Collaborative Filtering berbasis neural network, model mampu mempelajari pola interaksi pengguna dan menghasilkan rekomendasi 10 buku teratas yang dipersonalisasi.
+Model sistem rekomendasi berbasis Collaborative Filtering dengan pendekatan matrix factorization neural network terbukti efektif dalam menjawab dua problem utama proyek ini, yaitu:
 
-Hasil evaluasi menunjukkan nilai RMSE yang rendah dan stabil, menandakan prediksi yang cukup akurat. Tanpa memerlukan data konten tambahan, model ini efektif dalam memberikan rekomendasi yang relevan berdasarkan interaksi historis pengguna.
+1. Memprediksi preferensi pengguna terhadap buku yang belum mereka baca, berdasarkan data interaksi historis.
+
+2. Memberikan rekomendasi buku yang relevan dan berkualitas tinggi, dipersonalisasi untuk masing-masing pengguna.
+
+Nilai RMSE validasi yang rendah dan stabil (±0.18) menunjukkan bahwa model memiliki performa prediksi yang cukup baik untuk diterapkan dalam sistem rekomendasi berbasis rating.
+
+Model ini juga berhasil mencapai dua goals utama:
+
+- Membangun model ML yang akurat untuk memprediksi rating.
+- Menghasilkan 10 rekomendasi buku terbaik yang relevan bagi pengguna.
+
+Selain itu, solusi yang dirancang—yaitu menggunakan neural collaborative filtering tanpa data konten tambahan—berdampak langsung pada efisiensi dan fleksibilitas sistem. Model mampu menangkap pola laten antar pengguna dan item, sehingga tetap dapat memberikan rekomendasi yang relevan meskipun informasi metadata buku sangat terbatas.
+
+Secara keseluruhan, model ini memberikan kontribusi nyata terhadap pemenuhan kebutuhan bisnis dalam meningkatkan pengalaman pengguna melalui sistem rekomendasi yang personal personal dan akurat.
+
 
 ---
 
